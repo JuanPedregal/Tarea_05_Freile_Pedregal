@@ -4,6 +4,7 @@ Name : model1
 Group : 
 With QGIS : 31608
 """
+# Se importan los paquetes necesarios para estos procesos
 
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
