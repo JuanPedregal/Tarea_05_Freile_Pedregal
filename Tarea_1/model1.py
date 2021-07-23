@@ -12,25 +12,35 @@ from qgis.core import QgsProcessingMultiStepFeedback
 from qgis.core import QgsProcessingParameterFeatureSink
 import processing
 
-
+# Se crea el algoritmo con nombre "Model1" 
 class Model1(QgsProcessingAlgorithm):
 
+    # Se define la función "initAlgorithm" cuya variable es "self"
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterFeatureSink('Autoinc_id', 'autoinc_id', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink('Length', 'length', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink('Field_calc', 'field_calc', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink('Output_menor_a_11', 'OUTPUT_menor_a_11', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink('Fix_geo', 'fix_geo', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink('Widsout', 'widsout', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-
+        # Con .addParameter se agregan parámetros a self para que lo ejecute la función. En este caso, cada parametro es un proceso que realiza qgis.
+        
+        # Le agregamos una enumeración a las variables (un ID autoincremental) con 'Autoinc_id'
+        self.addParameter(QgsProcessingParameterFeatureSink('Autoinc_id', 'autoinc_id', type=QgsProcessing.TypeVectorAnyGeometry, 
+                                                            createByDefault=True, supportsAppend=True, defaultValue=None))
+        
+        self.addParameter(QgsProcessingParameterFeatureSink('Length', 'length', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, 
+                                                            supportsAppend=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSink('Field_calc', 'field_calc', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, 
+                                                            supportsAppend=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSink('Output_menor_a_11', 'OUTPUT_menor_a_11', type=QgsProcessing.TypeVectorAnyGeometry, 
+                                                            createByDefault=True, defaultValue=None))
+        # Proceso para arreglar las geometrias 'Fix_geo'
+        self.addParameter(QgsProcessingParameterFeatureSink('Fix_geo', 'fix_geo', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, 
+                                                            supportsAppend=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSink('Widsout', 'widsout', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, 
+                                                            supportsAppend=True, defaultValue=None))
+    # Se define otra funcion que usará a self para ejecutar los 6 procesos
     def processAlgorithm(self, parameters, context, model_feedback):
-        # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
-        # overall progress through the model
         feedback = QgsProcessingMultiStepFeedback(6, model_feedback)
         results = {}
         outputs = {}
 
-        # Corregir geometrías
+        # Primero se corrigen las geometrías, para esto se utiliza el archivo langa.shp 
         alg_params = {
             'INPUT': 'C:/Udesa/Herramientas/Clase_5/input/langa.shp',
             'OUTPUT': parameters['Fix_geo']
@@ -42,7 +52,7 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
-        # Agregar campo que auto-incrementa 
+        # Se agrega un campo auto-incremental que comienza desde el 1 
         alg_params = {
             'FIELD_NAME': 'GID',
             'GROUP_FIELDS': [''],
