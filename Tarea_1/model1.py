@@ -12,8 +12,9 @@ from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
 from qgis.core import QgsProcessingParameterFeatureSink
 import processing
-
+##########################################
 # Se crea el algoritmo con nombre "Model1" 
+##########################################
 class Model1(QgsProcessingAlgorithm):
 
     # Se define la función "initAlgorithm" cuya variable es "self"
@@ -43,8 +44,9 @@ class Model1(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(6, model_feedback)
         results = {}
         outputs = {}
-
+        #####################################################################################################
         # Primero se corrigen las geometrías, para esto se utiliza el archivo langa.shp y el comando 'Fix_geo'
+        #####################################################################################################
         alg_params = {
             'INPUT': 'C:/Udesa/Herramientas/Clase_5/input/langa.shp',
             'OUTPUT': parameters['Fix_geo']
@@ -55,8 +57,9 @@ class Model1(QgsProcessingAlgorithm):
         feedback.setCurrentStep(1)
         if feedback.isCanceled():
             return {}
-
+        #############################################################
         # Se agrega un campo auto-incremental que comienza desde el 1 
+        #############################################################
         alg_params = {
             'FIELD_NAME': 'GID',
             'GROUP_FIELDS': [''],
@@ -73,8 +76,9 @@ class Model1(QgsProcessingAlgorithm):
         feedback.setCurrentStep(2)
         if feedback.isCanceled():
             return {}
-
+        ################################################################################################################################################################ 
         # Se genera una variable que se llama 'length' y sus valores son iguales a la cantidad de caracteres que tiene la variable NAME_PROP utilizando "fieldcalculator"
+        ################################################################################################################################################################ 
         alg_params = {
             'FIELD_LENGTH': 2,
             'FIELD_NAME': 'length',
@@ -90,8 +94,9 @@ class Model1(QgsProcessingAlgorithm):
         feedback.setCurrentStep(3)
         if feedback.isCanceled():
             return {}
-
+        ####################################################################################################################### 
         # Se crea y ejecuta el filtro para descartar las observaciones cuyo Length(NAME_PROP) es mayor a 10 utilizando "filter"
+        #######################################################################################################################
         alg_params = {
             'INPUT': outputs['CalculadoraDeCampos']['OUTPUT'],
             'OUTPUT_menor_a_11': parameters['Output_menor_a_11']
@@ -102,8 +107,9 @@ class Model1(QgsProcessingAlgorithm):
         feedback.setCurrentStep(4)
         if feedback.isCanceled():
             return {}
-
+        ####################################################################
         # Clonamos "NAME_PROP" y la nombramos 'Inm' usando "fieldcalculator"
+        ####################################################################
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'Inm',
@@ -119,8 +125,9 @@ class Model1(QgsProcessingAlgorithm):
         feedback.setCurrentStep(5)
         if feedback.isCanceled():
             return {}
-
+        #########################################################
         # Se quitan columnas no pertinentes usando "deletecolumn"
+        #########################################################
         alg_params = {
             'COLUMN': ['ID_ISO_A3','ID_ISO_A2','ID_FIPS','NAM_LABEL','NAME_PROP','NAME2','NAM_ANSI','CNT','C1','POP','LMP_POP1','G','LMP_CLASS','FAMILYPROP','FAMILY','langpc_km2','length'],
             'INPUT': outputs['CalculadoraDeCamposClone']['OUTPUT'],
