@@ -4,7 +4,9 @@ Name : model2
 Group : 
 With QGIS : 31608
 """
-
+# Parte del material obtenido de https://github.com/sebastianhohmann/gis_course/tree/master/QGIS/research_course
+# Se prepará "agricultural suitability raster"
+# Se importan e instalan los paquetes necesarios
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -12,20 +14,19 @@ from qgis.core import QgsProcessingParameterRasterDestination
 from qgis.core import QgsCoordinateReferenceSystem
 import processing
 
-
+# Se nombra y da inicia al Modelo2
 class Model2(QgsProcessingAlgorithm):
-
+    # En este caso solo obtendremos un layer
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterRasterDestination('Suitout', 'suitout', createByDefault=True, defaultValue=None))
-
+    # Se ejecutaran 2 algoritmos
     def processAlgorithm(self, parameters, context, model_feedback):
-        # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
-        # overall progress through the model
         feedback = QgsProcessingMultiStepFeedback(2, model_feedback)
         results = {}
         outputs = {}
-
-        # Combar (reproyectar)
+        ##########################################
+        # Se proyecta el raster hdr.adf en WGS 84
+        ##########################################
         alg_params = {
             'DATA_TYPE': 0,
             'EXTRA': '',
@@ -47,8 +48,9 @@ class Model2(QgsProcessingAlgorithm):
         feedback.setCurrentStep(1)
         if feedback.isCanceled():
             return {}
-
-        # Extraer proyección
+        #########################################################################
+        # Se extrae la proyección para crear una proyeccion permanente del raster 
+        #########################################################################
         alg_params = {
             'INPUT': outputs['CombarReproyectar']['OUTPUT'],
             'PRJ_FILE_CREATE': True
