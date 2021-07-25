@@ -4,16 +4,18 @@ Name : model4b
 Group : 
 With QGIS : 31608
 """
-
+# Parte del material obtenido de https://github.com/sebastianhohmann/gis_course/tree/master/QGIS/research_course
+# Resumen: 
+# Se importan e instalan los paquetes necesarios
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
 from qgis.core import QgsProcessingParameterFeatureSink
 import processing
 
-
+# Se crea y nombra el modelo 4b
 class Model4b(QgsProcessingAlgorithm):
-
+    # Se obtendrán 20 layers en qgis
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterFeatureSink('Pais_centroide', 'pais_centroide', type=QgsProcessing.TypeVectorPoint, createByDefault=True, supportsAppend=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Extract_by_attribute', 'Extract_by_attribute', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
@@ -35,15 +37,14 @@ class Model4b(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSink('Csvout', 'csvout', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Centroide_w_coord', 'centroide_w_coord', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Add_geo_coast', 'add_geo_coast', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
-
+    # Se ejecutarán 21 algoritmos
     def processAlgorithm(self, parameters, context, model_feedback):
-        # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
-        # overall progress through the model
         feedback = QgsProcessingMultiStepFeedback(21, model_feedback)
         results = {}
         outputs = {}
-
-        # Corregir geometrías coast
+        ############################################################
+        ### Se corrigen las geometrias de "ne_10m_coastline.shp" ###
+        ############################################################
         alg_params = {
             'INPUT': 'C:/Udesa/Herramientas/Clase_5/input/ne_10m_coastline.shp',
             'OUTPUT': parameters['Fixgeo_coast']
@@ -54,8 +55,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(1)
         if feedback.isCanceled():
             return {}
-
-        # Corregir geometrías pais
+        ####################################################################
+        ### Se corrigen las geometrias de "ne_10m_admin_0_countries.shp" ###
+        ####################################################################
         alg_params = {
             'INPUT': 'C:/Udesa/Herramientas/Clase_5/input/ne_10m_admin_0_countries.shp',
             'OUTPUT': parameters['Fixgeo_pais']
@@ -66,8 +68,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(2)
         if feedback.isCanceled():
             return {}
-
-        # Quitar campo(s) costas
+        ##################################################################
+        ### Se elimina la columna 'scalerank' del layer 'Fixgeo_coast' ###
+        ##################################################################
         alg_params = {
             'COLUMN': ['scalerank'],
             'INPUT': outputs['CorregirGeometrasCoast']['OUTPUT'],
@@ -79,8 +82,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(3)
         if feedback.isCanceled():
             return {}
-
-        # Centroides pais
+        ###########################################
+        ### Se crea un centroide para cada pais ###
+        ###########################################
         alg_params = {
             'ALL_PARTS': False,
             'INPUT': outputs['CorregirGeometrasPais']['OUTPUT'],
@@ -92,8 +96,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(4)
         if feedback.isCanceled():
             return {}
-
-        # Agregar atributos de geometría
+        ####################################################
+        ### Se agregan las coordenadas de los centroides ###
+        ####################################################
         alg_params = {
             'CALC_METHOD': 0,
             'INPUT': outputs['CentroidesPais']['OUTPUT'],
@@ -105,8 +110,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(5)
         if feedback.isCanceled():
             return {}
-
-        # Quitar campo(s) - centroide
+        ##############################################################################
+        ### Se quitan columnas innecesarias del layer "centroids with coordinates" ###
+        ##############################################################################
         alg_params = {
             'COLUMN': ['featurecla','scalerank','LABELRANK','SOVEREIGNT','SOV_A3','ADM0_DIF','LEVEL','TYPE','ADM0_A3','GEOU_DIF','GEOUNIT','GU_A3','SU_DIF','SUBUNIT','SU_A3','BRK_DIFF','NAME','NAME_LONG','BRK_A3','BRK_NAME','BRK_GROUP','ABBREV','POSTAL','FORMAL_EN','FORMAL_FR','NAME_CIAWF','NOTE_ADM0','NOTE_BRK','NAME_SORT','NAME_ALT','MAPCOLOR7','MAPCOLOR8','APCOLOR9','MAPCOLOR13','POP_EST','POP_RANK','GDP_MD_EST','POP_YEAR','LASTCENSUS','GDP_YEAR','ECONOMY','INCOME_GRP','WIKIPEDIA','FIPS_10_','ISO_A2','ISO_A3_EH','ISO_N3','UN_A3','WB_A2','WB_A3','WOE_ID','WOE_ID_EH','WOE_NOTE','ADM0_A3_IS','ADM0_A3_US','ADM0_A3_UN','ADM0_A3_WB','CONTINENT','REGION_UN','SUBREGION','REGION_WB','NAME_LEN','LONG_LEN','ABBREV_LEN','TINY','HOMEPART','MIN_ZOOM','MIN_LABEL','MAX_LABEL','NE_ID','WIKIDATAID','NAME_AR','NAME_BN','NAME_DE','NAME_EN','NAME_ES','NAME_FR','NAME_EL','NAME_HI','NAME_HU','NAME_ID','NAME_IT','NAME_JA','NAME_KO','NAME_NL','NAME_PL','NAME_PT','NAME_RU','NAME_SV','NAME_TR','NAME_VI','NAME_ZH','MAPCOLOR9'],
             'INPUT': outputs['AgregarAtributosDeGeometra']['OUTPUT'],
@@ -118,8 +124,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(6)
         if feedback.isCanceled():
             return {}
-
-        # v.distance
+        ########################################################################
+        ### Se calcula la distancia entre la costa y los centroides por pais ###
+        ########################################################################
         alg_params = {
             'GRASS_MIN_AREA_PARAMETER': 0.0001,
             'GRASS_OUTPUT_TYPE_PARAMETER': 0,
@@ -147,8 +154,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(7)
         if feedback.isCanceled():
             return {}
-
-        # Calculadora de campos - cat adjust
+        ##############################################################################################################
+        ### A la variable "cat" obtenida recién en "nearout" le restamos 1 para que quede armonizada con "distout" ###
+        ##############################################################################################################
         alg_params = {
             'FIELD_LENGTH': 4,
             'FIELD_NAME': 'cat',
@@ -164,8 +172,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(8)
         if feedback.isCanceled():
             return {}
-
-        # Quitar campo(s) nearest cat
+        ########################################################################
+        ### Se quitan las columnas 'xcoord','ycoord' de "Nearest_cat_adjust" ###
+        ########################################################################
         alg_params = {
             'COLUMN': ['xcoord','ycoord'],
             'INPUT': outputs['CalculadoraDeCamposCatAdjust']['OUTPUT'],
@@ -177,8 +186,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(9)
         if feedback.isCanceled():
             return {}
-
-        # Unir atributos por valor de campo - centroide y costa
+        #############################################################################################
+        ### Se unen las layers "NearestCatAdjustDropfields" y "Centroidsout" a partir de 'ISO_A3' ###
+        #############################################################################################
         alg_params = {
             'DISCARD_NONMATCHING': False,
             'FIELD': 'ISO_A3',
@@ -196,8 +206,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(10)
         if feedback.isCanceled():
             return {}
-
-        # Quitar campo(s) - centroides_costa_juntos
+        ##########################################################################
+        ### Se quitan varias columnas innecesarias de la ultima layer obtenida ###
+        ##########################################################################
         alg_params = {
             'COLUMN': ['featurecla','scalerank','LABELRANK','SOVEREIGNT','SOV_A3','ADM0_DIF','LEVEL','TYPE','ADM0_A3','GEOU_DIF','GEOUNIT','GU_A3','SU_DIF','SUBUNIT','SU_A3','BRK_DIFF','NAME','NAME_LONG','BRK_A3','BRK_NAME','BRK_GROUP','ABBREV','POSTAL','FORMAL_EN','FORMAL_FR','NAME_CIAWF','NOTE_ADM0','NOTE_BRK','NAME_SORT','NAME_ALT','MAPCOLOR7','MAPCOLOR8','APCOLOR9','MAPCOLOR13','POP_EST','POP_RANK','GDP_MD_EST','POP_YEAR','LASTCENSUS','GDP_YEAR','ECONOMY','INCOME_GRP','WIKIPEDIA','FIPS_10_','ISO_A2','ISO_A3_EH','ISO_N3','UN_A3','WB_A2','WB_A3','WOE_ID','WOE_ID_EH','WOE_NOTE','ADM0_A3_IS','ADM0_A3_US','ADM0_A3_UN','ADM0_A3_WB','CONTINENT','REGION_UN','SUBREGION','REGION_WB','NAME_LEN','LONG_LEN','ABBREV_LEN','TINY','HOMEPART','MIN_ZOOM','MIN_LABEL','MAX_LABEL','NE_ID','WIKIDATAID','NAME_AR','NAME_BN','NAME_DE','NAME_EN','NAME_ES','NAME_FR','NAME_EL','NAME_HI','NAME_HU','NAME_ID','NAME_IT','NAME_JA','NAME_KO','NAME_NL','NAME_PL','NAME_PT','NAME_RU','NAME_SV','NAME_TR','NAME_VI','NAME_ZH','MAPCOLOR9','ADMIN_2','ISO_A3_2'],
             'INPUT': outputs['UnirAtributosPorValorDeCampoCentroideYCosta']['OUTPUT'],
@@ -209,8 +220,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(11)
         if feedback.isCanceled():
             return {}
-
-        # Unir atributos por valor de campo - cat
+        #######################################################################################################################
+        # Se realiza otra unión entre "outputs['Vdistance']['output']" y "Centroids_nearest_coast_joined" a partir de "cat" ###
+        #######################################################################################################################
         alg_params = {
             'DISCARD_NONMATCHING': False,
             'FIELD': 'cat',
