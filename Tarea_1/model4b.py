@@ -5,7 +5,8 @@ Group :
 With QGIS : 31608
 """
 # Parte del material obtenido de https://github.com/sebastianhohmann/gis_course/tree/master/QGIS/research_course
-# Resumen: 
+### Resumen: Se obtendrán las coordenadas geograficas de los centroides por pais y de un punto en la costa del mismo pais ###
+### tal que la distancia entre el centroide y la costa sea la mínima                                                      ###
 # Se importan e instalan los paquetes necesarios
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
@@ -240,8 +241,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(12)
         if feedback.isCanceled():
             return {}
-
-        # Extraer vértices
+        ##############################################################################
+        ### Se extraen los vertices de 'Centroids_nearest_coast_joined_dropfields' ###
+        ##############################################################################
         alg_params = {
             'INPUT': outputs['UnirAtributosPorValorDeCampoCat']['OUTPUT'],
             'OUTPUT': parameters['ExtractVertices']
@@ -252,8 +254,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(13)
         if feedback.isCanceled():
             return {}
-
-        # Extraer por atributo - a
+        ###################################################################
+        ### Se extraen las observaciones que tengan 'distance' positiva ###
+        ###################################################################
         alg_params = {
             'FIELD': 'distance',
             'INPUT': outputs['ExtraerVrtices']['OUTPUT'],
@@ -267,8 +270,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(14)
         if feedback.isCanceled():
             return {}
-
-        # Calculadora de campos - cent_lat
+        #######################################################################################
+        ### Clonamos la variable que mide la latitud del centroide y la llamamos "cent_lat" ###
+        #######################################################################################
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'cent_lat',
@@ -284,8 +288,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(15)
         if feedback.isCanceled():
             return {}
-
-        # Calculadora de campos - cent_lon
+        ########################################################################################
+        ### Clonamos la variable que mide la longitud del centroide y la llamamos "cent_lon" ###
+        ########################################################################################
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'cent_lon',
@@ -301,8 +306,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(16)
         if feedback.isCanceled():
             return {}
-
-        # Quitar campo(s) - centroids_lat_lon
+        ############################################################
+        ### Se quitan las columnas innecesarias del ultimo layer ###
+        ############################################################
         alg_params = {
             'COLUMN': ['fid','cat','xcoord','ycoord','fid_2','cat_2','vertex_index','vertex_part','vertex_part','_index','angle'],
             'INPUT': outputs['CalculadoraDeCamposCent_lon']['OUTPUT'],
@@ -314,8 +320,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(17)
         if feedback.isCanceled():
             return {}
-
-        # Agregar atributos de geometría - add_geo_coast
+        ###########################################################################
+        ### Se agregan atributos de geometría a 'Centroids_lat_lon_drop_fields' ###
+        ###########################################################################
         alg_params = {
             'CALC_METHOD': 0,
             'INPUT': outputs['QuitarCamposCentroids_lat_lon']['OUTPUT'],
@@ -327,8 +334,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(18)
         if feedback.isCanceled():
             return {}
-
-        # Calculadora de campos - coast_lat
+        ########################################################################################
+        ### Clonamos la variable que mide la latitud de las costas y la llamamos "coast_lat" ###
+        ########################################################################################
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'coast_lat',
@@ -344,8 +352,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(19)
         if feedback.isCanceled():
             return {}
-
-        # Calculadora de campos - coast_lon
+        #########################################################################################
+        ### Clonamos la variable que mide la longitud de las costas y la llamamos "coast_lon" ###
+        #########################################################################################
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'coast_lon',
@@ -361,8 +370,9 @@ class Model4b(QgsProcessingAlgorithm):
         feedback.setCurrentStep(20)
         if feedback.isCanceled():
             return {}
-
-        # Quitar campo(s)
+        ############################################################################################################
+        ### Finalmente se quitan las columnas 'xcoord' y 'ycoord' del anterior layer y se obtiene el layer final ###
+        ############################################################################################################
         alg_params = {
             'COLUMN': ['xcoord','ycoord'],
             'INPUT': outputs['CalculadoraDeCamposCoast_lon']['OUTPUT'],
