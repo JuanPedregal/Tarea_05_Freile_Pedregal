@@ -5,7 +5,7 @@ Group :
 With QGIS : 31608
 """
 # Parte del material obtenido de https://github.com/sebastianhohmann/gis_course/tree/master/QGIS/research_course
-# Resumen: 
+# Resumen: Intersección de dos .shp y calculo de estadisticas por categoria
 # Se importan los paquetes necesarios para estos procesos
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
